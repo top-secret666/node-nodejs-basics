@@ -4,22 +4,37 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const filePath = path.join(__dirname, 'files', 'fresh.txt');
 
-const create = async () => {
-    const filePath = path.join(__dirname, 'files', 'fresh.txt');
+const fileContent = 'I am fresh and young';
 
+const fileExists = async (filePath) => {
     try {
         await fs.access(filePath);
-        throw new Error('FS operation failed: File already exists');
+        return true;
     } catch (error) {
         if (error.code === 'ENOENT') {
-            await fs.writeFile(filePath, 'I am fresh and young');
-            console.log('File created successfully');
-        } else {
-            throw error;
+            return false;
         }
+        throw error;
     }
 };
 
-create().catch(console.error);
+const createFile = async () => {
+const exists = await fileExists(filePath);
+
+    if (exists) {
+        console.error('FS operation failed: The file already exists');
+        return;
+    }
+
+    try {
+        await fs.writeFile(filePath, fileContent);
+        console.log('File created successfully with the content:', fileContent);
+    } catch (error) {
+        console.error('Error while creating the file:', error.message);
+    }
+};
+
+createFile();
 
